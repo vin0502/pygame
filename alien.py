@@ -32,10 +32,8 @@ class Alien(Sprite):
 	def update(self):
 		"""移动外星人"""
 		self.x += self.ai_settings.alien_speed_factor * self.ai_settings.fleet_direction
-		# self.y += self.ai_settings.fleet_drop_speed
 		self.rect.x = self.x
 		self.rect.y += self.ai_settings.fleet_drop_speed
-
 
 	def check_edges(self):
 		"""如果外星人位于屏幕边缘，就返回TRUE"""
