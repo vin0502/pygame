@@ -11,7 +11,7 @@ from random import randint
 from time import sleep
 
 
-def check_events(ai_settings, screen, ship, bullets):
+def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets):
 	"""响应按键和鼠标事件"""
 	for event in pygame.event.get():				# 退出游戏操作
 		if event.type == pygame.QUIT:
@@ -20,6 +20,22 @@ def check_events(ai_settings, screen, ship, bullets):
 			check_keydown_events(event, ai_settings, screen, ship, bullets)
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, ship)
+		elif event.type == pygame.MOUSEBUTTONDOWN:
+			mouse_x, mouse_y = pygame.mouse.get_pos()
+			check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, mouse_x, mouse_y)
+
+
+def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, mouse_x, mouse_y):
+	"""在玩家单击Play按钮时开始新游戏"""
+	button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
+	if button_clicked and not stats.game_active:
+		pygame.mouse.set_visible(False)
+		stats.reset_stats()
+		stats.game_active =True
+		aliens.empty()
+		bullets.empty()
+		create_fleet(ai_settings, screen, ship,aliens)
+		ship.center_ship()
 
 
 def check_keydown_events(event, ai_settings, screen, ship, bullets):           # 按下按键时，控制飞船移动
@@ -49,7 +65,7 @@ def check_keyup_events(event, ship):                      # 松开按键时不�
 		ship.moving_down = False
 
 
-def update_screen(ai_settings, screen, ship, aliens, bullets):
+def update_screen(ai_settings, screen, stats, ship, aliens, bullets, play_button):
 	"""更新屏幕上的图像，并切换到新屏幕"""
 	# 每次循环时都重绘屏幕
 	# screen.fill(ai_settings.bg_color)
@@ -58,6 +74,9 @@ def update_screen(ai_settings, screen, ship, aliens, bullets):
 		bullet.draw_bullet()
 	ship.blitme()
 	aliens.draw(screen)
+	# 如果游戏处于非活跃状态，就绘制Play按钮
+	if not stats.game_active:
+		play_button.draw_button()
 
 	pygame.display.flip()                             # 让最近绘制的屏幕可见
 
@@ -145,8 +164,11 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets):
 	"""更新外星人群中所有外星人位置"""
 	check_fleet_edges(ai_settings, aliens)
 	aliens.update()
-	if pygame.sprite.spritecollideany(ship, aliens):
-		ship_hit(ai_settings, stats, screen, ship, aliens, bullets)
+	for alien in aliens:
+		if pygame.sprite.collide_circle_ratio(0.8)(ship, alien):
+			ship_hit(ai_settings, stats, screen, ship, aliens, bullets)
+	# if pygame.sprite.spritecollideany(ship, aliens):
+	# 	ship_hit(ai_settings, stats, screen, ship, aliens, bullets)
 	for alien in aliens.copy():                    # 删除到达屏幕外的飞船
 		if alien.rect.bottom >= ai_settings.screen_width:
 			aliens.remove(alien)
@@ -170,6 +192,7 @@ def ship_hit(ai_settings, stats, screen, ship, aliens, bullets):
 		sleep(0.5)
 	else:
 		stats.game_active = False
+		pygame.mouse.set_visible(True)
 
 
 

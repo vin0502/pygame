@@ -11,6 +11,7 @@ from ship import Ship
 from alien import Alien
 import game_functions as gf
 from game_stats import GameStats
+from button import Button
 
 # 创建游戏主体--窗口
 
@@ -31,20 +32,22 @@ def run_game():
 	aliens = Group()
 	# 创建外星人
 	gf.create_fleet(ai_settings, screen, ship, aliens)
-	# a = len(aliens)
+	# 创建Play按钮
+	play_button = Button(ai_settings, screen, 'Play')
+
 
 	# 开始游戏的主循环
 	while True:
 		# 绘制背景
 		screen.blit(bg, (0, 0))
 
-		gf.check_events(ai_settings, screen, ship, bullets)
+		gf.check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets)
 		if stats.game_active:
 			ship.update()
 			gf.update_bullets(ai_settings, screen, ship, aliens, bullets)
 			gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets)
 
-		gf.update_screen(ai_settings, screen, ship, aliens, bullets)
+		gf.update_screen(ai_settings, screen, stats, ship, aliens, bullets, play_button)
 
 
 run_game()
