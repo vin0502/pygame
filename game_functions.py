@@ -17,7 +17,7 @@ def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets)
 		if event.type == pygame.QUIT:
 			sys.exit()
 		elif event.type == pygame.KEYDOWN:
-			check_keydown_events(event, ai_settings, screen, ship, bullets)
+			check_keydown_events(event, ai_settings, screen, ship, bullets, stats, aliens)
 		elif event.type == pygame.KEYUP:
 			check_keyup_events(event, ship)
 		elif event.type == pygame.MOUSEBUTTONDOWN:
@@ -29,18 +29,26 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bul
 	"""在玩家单击Play按钮时开始新游戏"""
 	button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
 	if button_clicked and not stats.game_active:
-		pygame.mouse.set_visible(False)
-		stats.reset_stats()
-		stats.game_active =True
-		aliens.empty()
-		bullets.empty()
-		create_fleet(ai_settings, screen, ship,aliens)
-		ship.center_ship()
+
+		start_game(ai_settings, screen, ship, bullets, stats, aliens)
 
 
-def check_keydown_events(event, ai_settings, screen, ship, bullets):           # 按下按键时，控制飞船移动
+def start_game(ai_settings, screen, ship, bullets, stats, aliens):
+	pygame.mouse.set_visible(False)
+	stats.reset_stats()
+	stats.game_active = True
+	aliens.empty()
+	bullets.empty()
+	create_fleet(ai_settings, screen, ship, aliens)
+	ship.center_ship()
 
-	if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+
+def check_keydown_events(event, ai_settings, screen, ship, bullets, stats, aliens):
+	# 按下按键时，做出相应操作
+
+	if event.key == pygame.K_p and not stats.game_active:
+		start_game(ai_settings, screen, ship, bullets, stats, aliens)
+	elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
 		ship.moving_right = True
 	elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
 		ship.moving_left = True
@@ -104,6 +112,8 @@ def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
 	collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
 
 	if len(aliens) == 0:                        # 屏幕中外星人全部消失时，新建一个外星人群
+		bullets.empty()
+		ai_settings.increse_speed()
 		create_fleet(ai_settings, screen, ship, aliens)
 
 
@@ -139,8 +149,9 @@ def create_fleet(ai_settings, screen, ship, aliens):
 	number_of_aliens = get_number_aliens_x(ai_settings, alien.rect.width)
 	# number_aliens_x = randint(1,get_number_aliens_x(ai_settings, alien.rect.width))
 	number_rows = get_number_rows(ai_settings, ship.rect.height, alien.rect.height)
+	number_row = randint(1, number_rows)
 
-	for row_number in range(number_rows):
+	for row_number in range(number_row):
 		number_aliens_x = randint(1, number_of_aliens)
 		for alien_number in range(number_aliens_x):
 			create_alien(ai_settings, screen, aliens, alien_number, row_number, number_of_aliens, number_aliens_x)
@@ -193,6 +204,8 @@ def ship_hit(ai_settings, stats, screen, ship, aliens, bullets):
 	else:
 		stats.game_active = False
 		pygame.mouse.set_visible(True)
+
+
 
 
 

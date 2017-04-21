@@ -33,8 +33,7 @@ def run_game():
 	# 创建外星人
 	gf.create_fleet(ai_settings, screen, ship, aliens)
 	# 创建Play按钮
-	play_button = Button(ai_settings, screen, 'Play')
-
+	play_button = Button(ai_settings, screen, 'Play', 'check or enter P')
 
 	# 开始游戏的主循环
 	while True:
