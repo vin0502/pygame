@@ -4,7 +4,7 @@
 import pygame.ftfont
 
 
-class ShowStats():
+class Scoreboard():
     """显示各类信息的类"""
 
     def __init__(self, ai_settings, screen, stats):
@@ -20,10 +20,11 @@ class ShowStats():
 
         # 准备初始信息图像
         self.prep_score()
+        self.prep_high_score()
 
     def prep_score(self):
         """将分数转换为一幅渲染的图像"""
-        score_str = str(self.stats.score)
+        score_str = "{:,}".format(self.stats.score)
         # score_str = self.stats.score
         # score_str = str(score_str)
         self.score_image = self.font.render(score_str, True, self.text_color)
@@ -36,4 +37,9 @@ class ShowStats():
     def show_score(self):
         self.screen.blit(self.score_image, self.score_rect)
 
+    def prep_high_score(self):
 
+        high_score_str = "{:,}".format(self.stats.high_score)
+        self.high_score_image = self.font.render(high_score_str, True, self.text_color)
+
+        # 将最高分显示在屏幕顶部中央
